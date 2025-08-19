@@ -30,16 +30,16 @@ export class MultilangObserver {
       await this.translate(existingNodes);
     }
     // DOM 변경 감지
-    this.observer = new MutationObserver((mutations) => {
+    this.observer = new MutationObserver(async (mutations) => {
       const changedNodes: HTMLElement[] = [];
       mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
+        mutation.addedNodes.forEach(async (node) => {
           // 자식 노드 중 data-auto-translate 속성이 있는 노드들 재귀적으로 탐색
-          collectAutoTranslateNodes(node, changedNodes);
+          await collectAutoTranslateNodes(node, changedNodes);
         });
       });
       if (changedNodes.length > 0) {
-        this.translate(changedNodes);
+        await this.translate(changedNodes);
       }
     });
 
