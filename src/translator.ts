@@ -28,8 +28,7 @@ async function translateText(
     - Then split the translated sentence back into the same number of fragments as the input.
     - When splitting, you may break sentences into smaller phrases or clauses to keep the fragment count identical.
     - Do not merge or remove fragments. The count must always match.
-    - Output must contain ONLY the translated fragments in order, no explanations, 
-    no additional text, only a JSON-like array.
+    - Output must contain ONLY the translated fragments in order, no explanations, no additional text, only a JSON-like array.
 
   Target language: ${options.targetLang}
   ${options.tone ? `Tone: ${options.tone}` : ""}
@@ -82,7 +81,7 @@ export async function translateTextBatch(
     })
     .join("\n");
 
-  // console.log(paired);
+  console.log(paired);
 
   return messages.map((m) => m.replace(/^\d+\.\s*/, ""));
 }
