@@ -32,7 +32,7 @@ async function translateText(
   `;
 
   const res = await fetch(
-    "https://translator-server-production-0eda.up.railway.app/8080/translate",
+    "https://translator-server-production-0eda.up.railway.app/translate",
     {
       method: "POST",
       headers: {
