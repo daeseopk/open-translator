@@ -10,7 +10,7 @@ import {
 
 export const DATA_AUTO_TRANSLATE_ATTRIBUTE = "data-auto-translate";
 
-export class MultilangObseexistingNodesver {
+export class MultilangObserver {
   private observer: MutationObserver | null = null;
   private cache: TranslationCache = {};
   private targetLang: string = "en";
