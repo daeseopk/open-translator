@@ -10,7 +10,7 @@ import {
 
 export const DATA_AUTO_TRANSLATE_ATTRIBUTE = "data-auto-translate";
 
-export class MultilangObserver {
+export class MultilangObseexistingNodesver {
   private observer: MutationObserver | null = null;
   private cache: TranslationCache = {};
   private targetLang: string = "en";
@@ -22,9 +22,13 @@ export class MultilangObserver {
 
   public async start() {
     // DOM 초기 텍스트 번역
-    // const nodes = await waitForAutoTranslateNode();
-    // this.translate(Array.from(nodes));
 
+    const existingNodes: HTMLElement[] = [];
+    collectAutoTranslateNodes(document.body, existingNodes);
+
+    if (existingNodes.length > 0) {
+      await this.translate(existingNodes);
+    }
     // DOM 변경 감지
     this.observer = new MutationObserver((mutations) => {
       const changedNodes: HTMLElement[] = [];
