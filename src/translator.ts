@@ -28,7 +28,7 @@ async function translateText(
     - Then split the translated sentence back into the same number of fragments as the input.
     - When splitting, you may break sentences into smaller phrases or clauses to keep the fragment count identical.
     - Do not merge or remove fragments. The count must always match.
-    - Output must contain ONLY the translated fragments in order, no explanations, no additional text, only a JSON-like array.
+    - *The most important task* The number of requested fragments and the number of response fragments must always be the same
 
   Target language: ${options.targetLang}
   ${options.tone ? `Tone: ${options.tone}` : ""}
