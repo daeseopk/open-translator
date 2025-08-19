@@ -23,9 +23,13 @@ async function translateText(
     - If the fragment is originally in English, do NOT translate it; return it as-is.
     - Keep the numbering (1., 2., 3., ...) in your translation output.
     - Maintain the same number of fragments in the output as the input.
-    - If fragments together form one natural sentence, first translate the full sentence into natural English. 
-    - Then, split the translated sentence back into the same number of fragments, cutting at natural word or phrase boundaries. 
-    - Ensure that the final English fragments are grammatically correct, fluent, and aligned with the original numbering.
+    - Output must contain exactly the same number of fragments as the input.
+    - If multiple fragments form one sentence in English, translate it naturally first.
+    - Then split the translated sentence back into the same number of fragments as the input.
+    - When splitting, you may break sentences into smaller phrases or clauses to keep the fragment count identical.
+    - Do not merge or remove fragments. The count must always match.
+    - Output must contain ONLY the translated fragments in order, no explanations, 
+    no additional text, only a JSON-like array.
 
   Target language: ${options.targetLang}
   ${options.tone ? `Tone: ${options.tone}` : ""}
