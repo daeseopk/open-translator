@@ -1,4 +1,4 @@
-import { setApiKey } from "./config";
+import { setApiKey, getIsLoading } from "./config";
 import { MultilangObserver } from "./domObserver";
 import type { TranslateOptions } from "./type";
 
@@ -14,8 +14,25 @@ export function initialize(options: InitializeOptions) {
   setApiKey(apiKey);
 }
 
-export function startMultilangTranslate(options: TranslateOptions) {
-  const observer = new MultilangObserver(options);
-  observer.start();
-  return observer;
+let globalObserver: MultilangObserver | null = null;
+
+export function startMultilangTranslate(options: TranslateOptions): {
+  isLoading: () => boolean;
+  stop: () => void;
+} {
+  // 기존 observer가 있으면 중지
+  if (globalObserver) {
+    globalObserver.stop();
+  }
+
+  globalObserver = new MultilangObserver(options);
+  globalObserver.start();
+
+  return {
+    isLoading: getIsLoading,
+    stop: () => {
+      globalObserver?.stop();
+      globalObserver = null;
+    },
+  };
 }

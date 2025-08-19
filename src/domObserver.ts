@@ -1,5 +1,6 @@
 import { applyTranslation } from "./applyTranslation";
 import { loadCache, saveCache } from "./cache";
+import { setIsLoading } from "./config";
 import { translateTextBatch } from "./translator";
 import type { TranslateOptions, TranslationCache } from "./type";
 import {
@@ -14,6 +15,7 @@ export class MultilangObserver {
   private observer: MutationObserver | null = null;
   private cache: TranslationCache = {};
   private targetLang: string = "en";
+  private pendingTranslations = 0;
 
   constructor(private options: TranslateOptions) {
     this.targetLang = options.targetLang;
@@ -39,6 +41,7 @@ export class MultilangObserver {
         });
       });
       if (changedNodes.length > 0) {
+        // 비동기로 실행하되 상태 추적
         this.translate(changedNodes);
       }
     });
@@ -51,22 +54,34 @@ export class MultilangObserver {
   }
 
   private async translate(nodesToTranslate: Node[]) {
-    const texts = nodesToTranslate.map((node) => extractTextFromNode(node));
-    const translatedTexts = await translateTextBatch(texts, this.options);
+    this.pendingTranslations++;
+    this.updateLoadingState();
 
-    nodesToTranslate.forEach((node, ix) => {
-      const id = generateNodeId(node);
-      if (this.cache[id]) {
-        const cachedText = this.cache[id];
-        applyTranslation(node, cachedText);
-        return;
-      }
+    try {
+      const texts = nodesToTranslate.map((node) => extractTextFromNode(node));
+      const translatedTexts = await translateTextBatch(texts, this.options);
 
-      applyTranslation(node, translatedTexts[ix]);
+      nodesToTranslate.forEach((node, ix) => {
+        const id = generateNodeId(node);
+        if (this.cache[id]) {
+          const cachedText = this.cache[id];
+          applyTranslation(node, cachedText);
+          return;
+        }
 
-      this.cache[id] = translatedTexts[ix];
-      saveCache(this.targetLang, this.cache);
-    });
+        applyTranslation(node, translatedTexts[ix]);
+
+        this.cache[id] = translatedTexts[ix];
+        saveCache(this.targetLang, this.cache);
+      });
+    } finally {
+      this.pendingTranslations--;
+      this.updateLoadingState();
+    }
+  }
+
+  private updateLoadingState() {
+    setIsLoading(this.pendingTranslations > 0);
   }
 
   public stop() {
