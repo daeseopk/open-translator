@@ -31,17 +31,19 @@ async function translateText(
   ${textArr.map((t, i) => `${i + 1}. ${t}`).join("\n")}
   `;
 
-  // TODO : 배포 주소로 변경
-  const res = await fetch("http://localhost:8080/translate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      apiKey: getApiKey(),
-      prompt,
-    }),
-  });
+  const res = await fetch(
+    "https://translator-server-production-0eda.up.railway.app/8080/translate",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        apiKey: getApiKey(),
+        prompt,
+      }),
+    }
+  );
   const data = await res.json();
   const rawMessages = data.message;
 
