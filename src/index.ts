@@ -1,3 +1,4 @@
+import { useState, useCallback, useRef, useEffect } from "react";
 import { setApiKey } from "./config";
 import { MultilangObserver } from "./domObserver";
 import type { TranslateOptions } from "./type";
@@ -7,10 +8,13 @@ interface InitializeOptions {
 }
 
 interface UseTranslateMultiLanguage {
-  startTranslate: (options: TranslateOptions) => void;
+  startTranslate: (options: TranslateOptions) => Promise<void>;
   stopTranslate: () => void;
   isLoading: boolean;
+  error: string | null;
+  isTranslating: boolean;
 }
+
 export function initialize(options: InitializeOptions) {
   const { apiKey } = options;
   if (!apiKey) {
@@ -26,39 +30,59 @@ export function startMultilangTranslate(options: TranslateOptions) {
 }
 
 export function useTranslateMultiLanguage(): UseTranslateMultiLanguage {
-  let isLoading = false;
-  let currentObserver: MultilangObserver | null = null;
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const currentObserverRef = useRef<MultilangObserver | null>(null);
 
-  const startTranslate = async (options: TranslateOptions) => {
+  const startTranslate = useCallback(async (options: TranslateOptions) => {
     // 기존 observer가 있다면 정리
-    if (currentObserver) {
-      currentObserver.stop();
+    if (currentObserverRef.current) {
+      currentObserverRef.current.stop();
+      currentObserverRef.current = null;
     }
 
-    isLoading = true;
+    setIsLoading(true);
+    setError(null);
+
     try {
       const observer = new MultilangObserver(options);
       await observer.start();
-      currentObserver = observer;
-    } catch (error) {
-      console.error("Translation start failed:", error);
+      currentObserverRef.current = observer;
+      setIsTranslating(true);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Translation start failed";
+      setError(errorMessage);
+      console.error("Translation start failed:", err);
     } finally {
-      isLoading = false;
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  const stopTranslate = () => {
-    if (currentObserver) {
-      currentObserver.stop();
-      currentObserver = null;
+  const stopTranslate = useCallback(() => {
+    if (currentObserverRef.current) {
+      currentObserverRef.current.stop();
+      currentObserverRef.current = null;
+      setIsTranslating(false);
+      setError(null);
     }
-  };
+  }, []);
+
+  // 컴포넌트 언마운트 시 정리
+  useEffect(() => {
+    return () => {
+      if (currentObserverRef.current) {
+        currentObserverRef.current.stop();
+      }
+    };
+  }, []);
 
   return {
     startTranslate,
     stopTranslate,
-    get isLoading() {
-      return isLoading;
-    },
+    isLoading,
+    error,
+    isTranslating,
   };
 }

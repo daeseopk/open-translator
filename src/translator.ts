@@ -75,7 +75,7 @@ export async function translateTextBatch(
     })
     .join("\n");
 
-  console.log(paired);
+  // console.log(paired);
 
   return messages.map((m) => m.replace(/^\d+\.\s*/, ""));
 }
