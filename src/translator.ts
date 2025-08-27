@@ -57,7 +57,7 @@ async function translateText(
     .trim()
     .split("\n")
     .map((line: string) => line.replace(/^\d+\.\s*/, ""))
-    .filter(Boolean);
+    .filter((line: string) => line.trim() !== "");
 
   return messages;
 }
