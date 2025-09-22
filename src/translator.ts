@@ -37,19 +37,16 @@ async function translateText(
   ${textArr.map((t, i) => `${i + 1}. ${t}`).join("\n")}
   `;
 
-  const res = await fetch(
-    "https://translator-server-production-0eda.up.railway.app/translate",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        apiKey: getApiKey(),
-        prompt,
-      }),
-    }
-  );
+  const res = await fetch("http://13.125.206.2:8080/translate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      apiKey: getApiKey(),
+      prompt,
+    }),
+  });
   const data = await res.json();
   const rawMessages = data.message;
 
